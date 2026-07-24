@@ -1,9 +1,9 @@
 # api.py
 import aiohttp
 
-async def fetch_anime_data(query_or_url: str, api_search_url: str = None):
+async def fetch_anime_data(query_or_url: str, base_api_url: str = None):
     """
-    Queries the AnimeSalt API or validates direct URLs.
+    Queries the AnimeSalt API using the correct /api/search?q={query} route.
     """
     if query_or_url.startswith("http://") or query_or_url.startswith("https://"):
         filename = query_or_url.split("/")[-1].split("?")[0]
@@ -20,8 +20,11 @@ async def fetch_anime_data(query_or_url: str, api_search_url: str = None):
             "synopsis": "Direct file download."
         }
 
-    if not api_search_url:
-        api_search_url = f"https://animesalt-api-nine.vercel.app/search?q={query_or_url}"
+    if not base_api_url:
+        base_api_url = "https://animesalt-api-lovat.vercel.app"
+    
+    base_api_url = base_api_url.rstrip("/")
+    api_search_url = f"{base_api_url}/api/search?q={query_or_url}"
     
     async with aiohttp.ClientSession() as session:
         async with session.get(api_search_url) as resp:
@@ -29,8 +32,10 @@ async def fetch_anime_data(query_or_url: str, api_search_url: str = None):
                 raise Exception(f"API returned status code {resp.status}")
             
             data = await resp.json()
-            result = data.get("results", [{}])[0]
-            stream_url = data.get("stream_url") or result.get("url")
+            results = data.get("results") or data.get("data") or [data]
+            result = results[0] if isinstance(results, list) and len(results) > 0 else data
+            
+            stream_url = data.get("stream_url") or result.get("url") or result.get("stream_url")
             
             if not stream_url:
                 raise Exception("No downloadable media found for this query.")
