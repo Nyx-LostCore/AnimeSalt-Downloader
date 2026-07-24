@@ -1,3 +1,4 @@
+# api.py
 import aiohttp
 
 async def fetch_anime_data(query_or_url: str, api_search_url: str = None):
@@ -20,7 +21,7 @@ async def fetch_anime_data(query_or_url: str, api_search_url: str = None):
         }
 
     if not api_search_url:
-        api_search_url = f"https://animesalt-api-endpoint-url.com/search?q={query_or_url}"
+        api_search_url = f"https://animesalt-api-nine.vercel.app/search?q={query_or_url}"
     
     async with aiohttp.ClientSession() as session:
         async with session.get(api_search_url) as resp:
