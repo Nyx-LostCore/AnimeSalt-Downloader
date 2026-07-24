@@ -2,14 +2,7 @@
 import aiohttp
 
 async def fetch_anime_data(query_or_url: str, base_api_url: str = None):
-    """
-    Queries the AnimeSalt API using the correct /api/search?q={query} route.
-    """
     if query_or_url.startswith("http://") or query_or_url.startswith("https://"):
-        filename = query_or_url.split("/")[-1].split("?")[0]
-        if not filename or "." not in filename:
-            filename = "anime_video.mp4"
-            
         return {
             "stream_url": query_or_url,
             "title": "Direct_Link_Video",
