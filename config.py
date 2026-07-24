@@ -1,15 +1,15 @@
 import os
 
 # Telegram API Credentials
-API_ID = int(os.getenv("API_ID", "1234567"))
-API_HASH = os.getenv("API_HASH", "your_api_hash_here")
-BOT_TOKEN = os.getenv("BOT_TOKEN", "your_bot_token_here")
+API_ID = int(os.getenv("API_ID", "36428426"))
+API_HASH = os.getenv("API_HASH", "30cba30aa38699e77ce264365e327528")
+BOT_TOKEN = os.getenv("BOT_TOKEN", "8610209411:AAE2_Qn_85IlnoVMZs4Awc7fpW_raJ_Fgyg")
 
 # AnimeSalt API Base Endpoint
 ANIMESALT_API_URL = os.getenv("ANIMESALT_API_URL", "https://animesalt-api-nine.vercel.app/")
 
 # Custom Rename & Upload Formatting
-RENAME_FORMAT = os.getenv("RENAME_FORMAT", "[S{season}-E{episode}] {title} [{quality}] [{audio}] @Anime_Rage_official.mp4")
+RENAME_FORMAT = os.getenv("RENAME_FORMAT", "[S{season}-E{episode}] {title} [{quality}] [{audio}] @Anime_Kyoto")
 
 # Custom Caption Formatting
 CAPTION_FORMAT = os.getenv(
@@ -19,6 +19,6 @@ CAPTION_FORMAT = os.getenv(
         "📺 **Season:** `{season}` | 🔢 **Episode:** `{episode}`\n"
         "⚙️ **Quality:** `{quality}` | 🔊 **Audio:** `{audio}`\n"
         "📝 **Overview:** _{synopsis}_\n\n"
-        "@Anime_Rage_official"
+        "@Anime_Kyoto"
     )
 )
