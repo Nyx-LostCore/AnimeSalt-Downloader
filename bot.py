@@ -6,7 +6,7 @@ import telebot
 from telebot.types import InlineKeyboardMarkup, InlineKeyboardButton
 from scraper import AnimexClient
 
-TOKEN = "YOUR_TELEGRAM_BOT_TOKEN"
+TOKEN = "8565483914:AAGKM6F0lMsFKV1WHg4bh66iamhJJX-00vc"
 bot = telebot.TeleBot(TOKEN)
 client = AnimexClient()
 
