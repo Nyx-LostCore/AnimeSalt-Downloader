@@ -51,12 +51,25 @@ def process_media(
     thumb_path: str | None,
     metadata: dict[str, str],
 ) -> None:
-    """Embeds metadata and attaches a thumbnail using ffmpeg."""
+    """Embeds metadata and safely attaches a thumbnail using ffmpeg."""
     import subprocess
+    import os
+
+    # Check if input video exists and is not empty
+    if not os.path.exists(input_video) or os.path.getsize(input_video) == 0:
+        raise RuntimeError("Download failed: The raw video file is empty or missing.")
+
     cmd = ["ffmpeg", "-y", "-i", input_video]
     
-    if thumb_path and os.path.exists(thumb_path):
-        cmd.extend(["-i", thumb_path, "-map", "0", "-map", "1", "-c", "copy", "-disposition:v:1", "attached_pic"])
+    has_valid_thumb = thumb_path and os.path.exists(thumb_path) and os.path.getsize(thumb_path) > 0
+
+    if has_valid_thumb:
+        cmd.extend([
+            "-i", thumb_path,
+            "-map", "0:v", "-map", "0:a?", "-map", "1:v",
+            "-c:v", "copy", "-c:a", "copy",
+            "-disposition:v:1", "attached_pic"
+        ])
     else:
         cmd.extend(["-c", "copy"])
 
@@ -64,7 +77,12 @@ def process_media(
         cmd.extend(["-metadata", f"{key}={val}"])
 
     cmd.append(output_video)
-    subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE, check=True)
+
+    # Run and capture errors cleanly
+    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+    if result.returncode != 0:
+        error_message = result.stderr.decode("utf-8", errors="ignore")
+        raise RuntimeError(f"FFmpeg failed (Exit code {result.returncode}): {error_message}")
 
 
 HELP_TEXT = (
