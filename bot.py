@@ -83,13 +83,14 @@ def process_media(
 
     cmd.append(output_video)
 
+    # Try running ffmpeg; if it fails due to container headers, catch it and fallback smoothly
     try:
-        # Run ffmpeg and allow it to fail safely without raising python exceptions
         result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
         if result.returncode != 0:
-            raise subprocess.SubprocessError("FFmpeg non-zero exit code")
+            print("[!] FFmpeg processing skipped due to container structure; falling back to direct file delivery.")
+            shutil.copy(input_video, output_video)
     except Exception:
-        print("[!] FFmpeg processing skipped due to container structure; falling back to direct file delivery.")
+        print("[!] FFmpeg execution error caught; falling back to direct file delivery.")
         shutil.copy(input_video, output_video)
 
 
