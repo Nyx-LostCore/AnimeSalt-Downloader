@@ -25,13 +25,19 @@ def get_config(chat_id: int) -> dict[str, str]:
     return OWNER_CONFIGS[chat_id]
 
 def download_file(url: str, output_path: str) -> None:
-    """Download file using curl_cffi session stream."""
+    """Download file using curl_cffi session stream with verification."""
+    print(f"[-] Downloading from: {url}")
     with client.session.stream("GET", url, timeout=30.0) as resp:
         resp.raise_for_status()
         with open(output_path, "wb") as f:
             for chunk in resp.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
+                    
+    # Verify that file size is reasonable (> 1MB) to ensure it's not an error response
+    if not os.path.exists(output_path) or os.path.getsize(output_path) < 1024 * 1024:
+        raise RuntimeError("Download failed: The downloaded file is too small or invalid (possibly blocked or expired stream URL).")
+    print(f"[+] Download complete: {output_path}")
 
 def download_thumbnail(image_url: str, output_path: str) -> bool:
     """Download cover image or custom thumb URL for thumbnail usage."""
