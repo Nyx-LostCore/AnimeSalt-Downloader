@@ -57,7 +57,7 @@ def process_media(
     thumb_path: str | None,
     metadata: dict[str, str],
 ) -> None:
-    """Safely processes media or falls back to copying if container headers are missing."""
+    """Safely processes media, falling back to clean copy if container headers fail."""
     import subprocess
     import shutil
     import os
@@ -65,7 +65,6 @@ def process_media(
     if not os.path.exists(input_video) or os.path.getsize(input_video) < 1024 * 1024:
         raise RuntimeError("Download failed: The raw video file is empty or invalid.")
 
-    # Try standard ffmpeg copy with metadata/thumbnail
     cmd = ["ffmpeg", "-y", "-i", input_video]
     has_valid_thumb = thumb_path and os.path.exists(thumb_path) and os.path.getsize(thumb_path) > 0
 
@@ -84,10 +83,12 @@ def process_media(
 
     cmd.append(output_video)
 
-    result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
-    
-    # Fallback: If FFmpeg fails due to bad moov atom/headers, just copy the raw download safely
-    if result.returncode != 0:
+    try:
+        # Run ffmpeg and allow it to fail safely without raising python exceptions
+        result = subprocess.run(cmd, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+        if result.returncode != 0:
+            raise subprocess.SubprocessError("FFmpeg non-zero exit code")
+    except Exception:
         print("[!] FFmpeg processing skipped due to container structure; falling back to direct file delivery.")
         shutil.copy(input_video, output_video)
 
