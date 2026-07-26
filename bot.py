@@ -24,19 +24,25 @@ def get_config(chat_id: int) -> dict[str, str]:
         }
     return OWNER_CONFIGS[chat_id]
 
-def download_file(url: str, output_path: str) -> None:
-    """Download file using curl_cffi session stream with verification."""
-    print(f"[-] Downloading from: {url}")
-    with client.session.stream("GET", url, timeout=30.0) as resp:
+def download_file(url: str, output_path: str, referer: str = "https://animex.one/") -> None:
+    """Download video stream with correct CDN headers."""
+    headers = {
+        "User-Agent": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36",
+        "Referer": referer,
+        "Origin": "https://animex.one"
+    }
+    
+    print(f"[-] Downloading stream from: {url}")
+    # Pass headers directly to ensure the CDN accepts the stream request
+    with client.session.stream("GET", url, headers=headers, timeout=60.0) as resp:
         resp.raise_for_status()
         with open(output_path, "wb") as f:
             for chunk in resp.iter_content(chunk_size=8192):
                 if chunk:
                     f.write(chunk)
                     
-    # Verify that file size is reasonable (> 1MB) to ensure it's not an error response
     if not os.path.exists(output_path) or os.path.getsize(output_path) < 1024 * 1024:
-        raise RuntimeError("Download failed: The downloaded file is too small or invalid (possibly blocked or expired stream URL).")
+        raise RuntimeError("Download failed: Stream returned empty or protected data (0 bytes).")
     print(f"[+] Download complete: {output_path}")
 
 def download_thumbnail(image_url: str, output_path: str) -> bool:
