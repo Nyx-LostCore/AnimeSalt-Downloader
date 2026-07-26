@@ -33,7 +33,6 @@ def download_file(url: str, output_path: str, referer: str = "https://animex.one
     }
     
     print(f"[-] Downloading stream from: {url}")
-    # Pass headers directly to ensure the CDN accepts the stream request
     with client.session.stream("GET", url, headers=headers, timeout=60.0) as resp:
         resp.raise_for_status()
         with open(output_path, "wb") as f:
